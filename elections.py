@@ -61,7 +61,7 @@ def update_420_stakers_all_chains():
         df = pd.concat([df,get_eoa_balances_in_420(chain)],axis=0)    
     df = df[df["collateral"]>0].copy()
     df["collateral"] = df["collateral"]/1e18    
-    grouped_df = df.groupby("eoa")["collateral"].sum()
+    grouped_df = df.groupby("eoa")["collateral"].sum().reset_index()
     grouped_df.set_index("eoa")["collateral"].to_json("election_output.json")
 
     
