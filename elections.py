@@ -27,7 +27,7 @@ def multicall(contract,functionName,args,chain):
         else:
             call_data.append((contract.address,False,0,contract.encode_abi(functionName,args=[arg])))
     results = list()
-    for call_data_chunk in chunks(500,call_data):
+    for call_data_chunk in chunks(1_000,call_data):
         results.extend(multicall.functions.aggregate3Value(call_data_chunk).call())    
     results = [w3.codec.decode(decoder, result[1]) if result[0] else [] for result in results ]        
     return results
@@ -61,7 +61,6 @@ def update_420_stakers_all_chains():
         df = pd.concat([df,get_eoa_balances_in_420(chain)],axis=0)    
     df = df[df["collateral"]>0].copy()
     df["collateral"] = df["collateral"]/1e18
-    df["collateral"] = df["collateral"].astype(int)
     grouped_df = df.groupby("eoa")["collateral"].sum().reset_index()
     wrapped    = {"symbol":"SNX", "addresses": grouped_df.set_index("eoa")["collateral"].to_dict()}
     with open("election_output.json", "w") as f:
