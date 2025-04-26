@@ -60,11 +60,15 @@ def update_420_stakers_all_chains():
     for chain in [1,10]:
         df = pd.concat([df,get_eoa_balances_in_420(chain)],axis=0)    
     df = df[df["collateral"]>0].copy()
-    df["collateral"] = df["collateral"]/1e18    
+    df["collateral"] = df["collateral"]/1e18
+    df["collateral"] = df["collateral"].astype(int)
     grouped_df = df.groupby("eoa")["collateral"].sum().reset_index()
-    grouped_df.set_index("eoa")["collateral"].to_json("election_output.json")
+    wrapped    = {"symbol":"SNX", "addresses": grouped_df.set_index("eoa")["collateral"].to_dict()}
+    with open("election_output.json", "w") as f:
+        json.dump(wrapped, f, separators=(",", ":"))
+    print("done")
 
     
 #%%
 if __name__ == "__main__":
-    df = fetch_420_stakers_all_chains()
+    update_420_stakers_all_chains()
